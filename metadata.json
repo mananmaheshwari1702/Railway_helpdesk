@@ -1,0 +1,8 @@
+{
+  "name": "AI based Inquiry Center",
+  "description": "An automated AI-powered Indian Railways help kiosk that detects passengers via camera, listens to queries, and provides real-time train information using voice and visual displays.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
