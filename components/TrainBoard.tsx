@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Train, PNRStatus, StationFacility, DashboardMode, Amenity } from '../types';
+import StationMap from './StationMap';
+import AmenityCard from './AmenityCard';
 
 interface TrainBoardProps {
   mode: DashboardMode;
@@ -201,75 +203,15 @@ const TrainBoard: React.FC<TrainBoardProps> = ({ mode, trains, pnrData, pnrError
   );
   }
 
-  const renderMap = () => (
-    <div className="flex-1 bg-gray-900 relative flex flex-col overflow-hidden">
-        {/* Map Container */}
-        <div className="flex-1 relative w-full h-full bg-gray-800 flex items-center justify-center overflow-hidden">
-             <div 
-                className="w-full h-full bg-contain bg-center bg-no-repeat relative transition-all duration-700"
-                style={{ backgroundImage: `url('/Station_map.jpg')` }}
-             >
-                {/* Fallback Grid if Image Missing (Visual Placeholder) */}
-                <div className="absolute inset-0 grid grid-cols-4 grid-rows-4 opacity-10 pointer-events-none">
-                     {[...Array(16)].map((_,i) => <div key={i} className="border border-white/20"></div>)}
-                </div>
-
-                {/* All Amenity Markers */}
-                {amenities.map((item) => (
-                    <div 
-                        key={item.key}
-                        onClick={() => setSelectedAmenity(item)}
-                        className={`absolute w-8 h-8 -ml-4 -mt-8 flex flex-col items-center justify-end cursor-pointer transition-transform hover:scale-125 hover:z-20 ${selectedAmenity?.key === item.key ? 'z-30 scale-125' : 'z-10 opacity-80 hover:opacity-100'}`}
-                        style={{ left: `${item.coordinates.x}%`, top: `${item.coordinates.y}%` }}
-                    >
-                         {selectedAmenity?.key === item.key && (
-                             <div className="bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap mb-0.5 animate-bounce">
-                                {item.names[0].toUpperCase()}
-                             </div>
-                         )}
-                         <svg viewBox="0 0 24 24" fill="currentColor" className={`w-6 h-6 drop-shadow-md ${selectedAmenity?.key === item.key ? 'text-red-500 w-8 h-8' : 'text-blue-400'}`}>
-                             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                         </svg>
-                         {/* Ripple Effect for selected */}
-                         {selectedAmenity?.key === item.key && (
-                             <div className="absolute bottom-0 w-3 h-3 bg-red-500 rounded-full animate-ping opacity-75"></div>
-                         )}
-                    </div>
-                ))}
-
-             </div>
-
-             {!selectedAmenity && (
-                 <div className="absolute top-4 left-4 bg-black/70 text-white p-2 rounded text-xs max-w-[200px] backdrop-blur-sm pointer-events-none">
-                     Tap on any marker to see details or Ask: "Where is the ATM?"
-                 </div>
-             )}
-        </div>
-
-        {/* Info Panel */}
-        {selectedAmenity ? (
-            <div className="bg-gray-800 p-4 border-t-4 border-red-500 animate-[slideIn_0.3s_ease-out]">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    <span className="text-red-400">📍</span>
-                    {selectedAmenity.names[0].toUpperCase()}
-                </h3>
-                <p className="text-gray-300 mt-1">{selectedAmenity.answer}</p>
-                <div className="mt-2 flex gap-2 text-xs text-gray-500">
-                    <span className="bg-gray-700 px-2 py-0.5 rounded text-white">{selectedAmenity.platform_area}</span>
-                    <span className="bg-gray-700 px-2 py-0.5 rounded text-white">{selectedAmenity.side}</span>
-                    {selectedAmenity.phone && (
-                         <span className="bg-green-800 px-2 py-0.5 rounded text-white flex items-center gap-1">
-                             📞 {selectedAmenity.phone}
-                         </span>
-                    )}
-                </div>
-            </div>
-        ) : (
-             <div className="bg-gray-800 p-3 border-t border-gray-700 text-center text-gray-400 text-sm">
-                 Select a location on the map to view details.
-             </div>
-        )}
-    </div>
+  const renderMapMode = () => (
+      <div className="flex-1 flex flex-col h-full bg-gray-900 overflow-hidden">
+          <StationMap 
+             amenities={amenities} 
+             selectedAmenity={selectedAmenity}
+             onSelect={setSelectedAmenity} 
+          />
+          <AmenityCard amenity={selectedAmenity} />
+      </div>
   );
 
   return (
@@ -278,7 +220,7 @@ const TrainBoard: React.FC<TrainBoardProps> = ({ mode, trains, pnrData, pnrError
       
       {mode === DashboardMode.SCHEDULE && renderSchedule()}
       {mode === DashboardMode.PNR && renderPNR()}
-      {mode === DashboardMode.MAP && renderMap()}
+      {mode === DashboardMode.MAP && renderMapMode()}
 
       {/* Marquee Footer */}
       <div className="bg-blue-950 text-white p-2 overflow-hidden whitespace-nowrap border-t border-blue-900 z-10">
